@@ -4,6 +4,10 @@
 
 #include "../include/renderer.h"
 #include <cmath>
+#include <SDL3/SDL.h>
+#include "color.cpp"
+#include <iostream>
+using namespace std;
 
 class Camera {
 public:
@@ -27,10 +31,7 @@ public:
     }
 };
 
-#include <SDL3/SDL.h>
-#include "color.cpp"
-#include <iostream>
-using namespace std;
+
 
 class Canvas {
 public:

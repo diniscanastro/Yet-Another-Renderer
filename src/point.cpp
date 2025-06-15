@@ -16,6 +16,13 @@ public:
 	Point2D(float x, float y) : x(x), y(y) {}
 
 	/*
+	* Compares 2 points/vectors for equality
+	*/
+	bool operator==(Point2D obj) const {
+		return this->x == obj.x && this->y == obj.y;
+	}
+
+	/*
 	* Adds 2 points/vectors
 	*/
 	Point2D operator+(Point2D obj) const {

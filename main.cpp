@@ -1,5 +1,5 @@
-#include "renderer.cpp"
-#include "point.cpp"
+#include "src/renderer.cpp"
+#include "src/point.cpp"
 
 
 int main(int argc, char* argv[]) {
