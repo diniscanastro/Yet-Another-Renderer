@@ -10,10 +10,10 @@ using namespace std;
 
 class Point2D {
 public:
-	float x, y;
+	double x, y;
 
 	Point2D() : x(0.f), y(0.f) {}
-	Point2D(float x, float y) : x(x), y(y) {}
+	Point2D(double x, double y) : x(x), y(y) {}
 
 	/*
 	* Compares 2 points/vectors for equality
@@ -45,9 +45,16 @@ public:
 	}
 
 	/*
+	* Divides a point/vector with a scalar
+	*/
+	Point2D operator/(const double k) const {
+		return *this * (1/k);
+	}
+
+	/*
 	* Multiplies a point/vector with a scalar
 	*/
-	Point2D operator*(const float k) const {
+	Point2D operator*(const double k) const {
 		Point2D res;
 		res.x = x * k;
 		res.y = y * k;
@@ -56,31 +63,26 @@ public:
 	}
 
 	/*
-	* Divides a point/vector with a scalar
-	*/
-	Point2D operator/(const float k) const {
-		return *this * (1/k);
-	}
-
-	/*
 	* Dot product between 2 points/vectors
 	*/
-	float operator*(const Point2D obj) const {
-		return x * obj.x + y * obj.y;
-	}
 
-	/*
-	* Angle between 2 vectors
-	*/
-	float angle(const Point2D obj) const {
-		return acos((*this * obj) / (this->magnitude() * obj.magnitude()));
+	double operator*(const Point2D obj) const {
+		return x * obj.x + y * obj.y;
 	}
 
 	/*
 	* Magnitude of a vector (length)
 	*/
-	float magnitude() const {
-		return float(sqrt(pow(x, 2) + pow(y, 2)));
+
+	double magnitude() const {
+		return sqrt(pow(x, 2) + pow(y, 2));
+	}
+
+	/*
+	* Angle between 2 vectors
+	*/
+	double angle(const Point2D obj) const {
+		return acos((*this * obj) / (this->magnitude() * obj.magnitude()));
 	}
 
 	/*
@@ -89,19 +91,27 @@ public:
 	Point2D normalize() const {
 		return *this / this->magnitude();
 	}
-
-	ostream& operator<< (ostream& os) const {
-		return (os << "{" << x << "," << y << "}");
-	}
 };
+
+ostream& operator<<(ostream& os, Point2D const& point){
+	os << "{" << point.x << "," << point.y << "}";
+	return os;
+}
 
 
 class Point3D {
 public:
-	float x, y, z;
+	double x, y, z;
 
 	Point3D() : x(0.f), y(0.f), z(0.f) {}
-	Point3D(float x, float y, float z) : x(x), y(y), z(z) {}
+	Point3D(double x, double y, double z) : x(x), y(y), z(z) {}
+
+	/*
+	* Compares 2 points/vectors for equality
+	*/
+	bool operator==(const Point3D obj) const {
+		return this->x == obj.x && this->y == obj.y && this->z == obj.z;
+	}
 
 	/*
 	* Adds 2 points/vectors
@@ -130,7 +140,7 @@ public:
 	/*
 	* Multiplies a point/vector with a scalar
 	*/
-	Point3D operator*(const float k) const {
+	Point3D operator*(const double k) const {
 		Point3D res;
 		res.x = x * k;
 		res.y = y * k;
@@ -142,29 +152,29 @@ public:
 	/*
 	* Divides a point/vector with a scalar
 	*/
-	Point3D operator/(const float k) const {
+	Point3D operator/(const double k) const {
 		return *this * (1 / k);
 	}
 
 	/*
 	* Dot product between 2 points/vectors
 	*/
-	float operator*(const Point3D obj) const {
+	double operator*(const Point3D obj) const {
 		return x * obj.x + y * obj.y + z * obj.z;
 	}
 
 	/*
 	* Angle between 2 vectors
 	*/
-	float angle(const Point3D obj) const {
+	double angle(const Point3D obj) const {
 		return acos((*this * obj) / (this->magnitude() * obj.magnitude()));
 	}
 
 	/*
 	* Magnitude of a vector (length)
 	*/
-	float magnitude() const {
-		return float(sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2)));
+	double magnitude() const {
+		return sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
 	}
 
 	/*
@@ -173,8 +183,9 @@ public:
 	Point3D normalize() const {
 		return *this / this->magnitude();
 	}
-
-	ostream& operator<< (ostream& os) const {
-		return (os << "{" << x << "," << y << "," << z << "}");
-	}
 };
+
+ostream& operator<<(ostream& os, Point3D const& point){
+	os << "{" << point.x << "," << point.y << "," << point.z << "}";
+	return os;
+}
