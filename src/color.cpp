@@ -4,39 +4,46 @@
 
 #include "../include/color.h"
 
-#include <algorithm>
-#include <iostream>
-using namespace std;
+Color::Color() : r(0), g(0), b(0) {}
+Color::Color(int r, int g, int b): r(r), g(g), b(b) {}
 
-class Color {
-public:
-    int r;
-    int g;
-    int b;
-    Color() : r(0), g(0), b(0) {}
-    Color(int r, int g, int b): r(r), g(g), b(b) {}
+Color Color::operator+(Color const & obj) const {
+    Color res;
+    res.r = std::clamp(r + obj.r, 0, 255);
+    res.g = std::clamp(g + obj.g, 0, 255);
+    res.b = std::clamp(b + obj.b, 0, 255);
 
-    Color operator+(Color const & obj)
-    {
-        Color res;
-        res.r = clamp(r + obj.r, 0, 255);
-        res.g = clamp(g + obj.g, 0, 255);
-        res.b = clamp(b + obj.b, 0, 255);
+    return res;
+}
 
-        return res;
-    }
+Color Color::operator-(Color const & obj) const {
+    Color res;
+    res.r = std::clamp(r - obj.r, 0, 255);
+    res.g = std::clamp(g - obj.g, 0, 255);
+    res.b = std::clamp(b - obj.b, 0, 255);
 
-    Color operator*(float k)
-    {
-        Color res;
-        res.r = clamp(int(k * r), 0, 255);
-        res.g = clamp(int(k * g), 0, 255);
-        res.b = clamp(int(k * b), 0, 255);
+    return res;
+}
 
-        return res;
-    }
+Color Color::operator*(const float k) const {
+    Color res;
+    res.r = std::clamp(int(k * r), 0, 255);
+    res.g = std::clamp(int(k * g), 0, 255);
+    res.b = std::clamp(int(k * b), 0, 255);
 
-    ostream& operator<< (ostream& os) {
-        return (os << "R: " << r << " G: " << g << " B: " << b);
-    }
-};
+    return res;
+}
+
+Color Color::operator/(const float k) const {
+    Color res;
+    res.r = std::clamp(int(r / k), 0, 255);
+    res.g = std::clamp(int(g / k), 0, 255);
+    res.b = std::clamp(int(b / k), 0, 255);
+
+    return res;
+}
+
+std::ostream& operator<<(std::ostream& os, Color const& color){
+    os << "R: " << color.r << " G: " << color.g << " B: " << color.b;
+    return os;
+}

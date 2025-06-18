@@ -1,102 +1,114 @@
-//
-// Created by dinis on 14.06.2025.
-//
-
-#include "../include/renderer.h"
 #include <cmath>
-#include <SDL3/SDL.h>
-#include "color.cpp"
-#include <iostream>
+#include <vector>
+#include <tuple>
+#include "../include/renderer.h"
+#include "../include/point.h"
+#include "../include/color.h"
+#include "viewport.cpp"
+#include "canvas.cpp"
+#include "sphere.cpp"
+
 using namespace std;
 
-class Camera {
+
+class Renderer {
 public:
-    float center_x, center_y, center_z;
+    Canvas canvas;
+    Viewport viewport;
+    Point3D camera;
+    Color background_color;
 
-    Camera(float x, float y, float z): center_x(x), center_y(y), center_z(z){}
-};
+    vector<Sphere> spheres;
 
-class Viewport {
-public:
-    float v_w;
-    float v_h;
-    float d;
-
-    Viewport(float w, float h, float d): v_w(w), v_h(h), d(d){}
-
-    void pixelToViewport(int c_w, int c_h, int c_x, int c_y) { // TODO: Introduce 2D and 3D points struct
-        float v_x = c_x * (v_w / c_w);
-        float v_y = c_y * (v_h / c_h);
-        float v_z = d;
+    Renderer(): canvas(800, 800), viewport(1.0, 1.0, 1.0), camera(Point3D(0, 0, 0)), background_color(Color(255,255,255)) {
+        canvas.initWindow();
+        set_scene_objects();
     }
-};
+    ~Renderer() {canvas.destroy();}
 
+    void set_scene_objects() {
+        spheres.push_back(Sphere(Point3D(0, -1, 3),1, Color(255,0,0)));
+        spheres.push_back(Sphere(Point3D(2, 0, 4),1, Color(0,0,255)));
+        spheres.push_back(Sphere(Point3D(-2, 0, 4),1, Color(0,255,0)));
 
-
-class Canvas {
-public:
-    // Internals
-    SDL_Window* window = NULL;
-    SDL_Renderer* renderer = NULL;
-
-    // Properties
-    int c_w;
-    int c_h;
-    Color* pixels;
-
-    Canvas(int w, int h): c_w(w), c_h(h) {
-        pixels = new Color[c_w * c_h]();
     }
 
-    bool initWindow() {
-        SDL_SetAppMetadata("Yet Another Renderer", "1.0", "diniscanastro.yer");
-
-        if (!SDL_Init(SDL_INIT_VIDEO)) {
-            SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
-            return false;
+    void engage_loop() {
+        while (canvas.pollExit()) {
+            process();
+            canvas.render();
         }
-
-        if (!SDL_CreateWindowAndRenderer("Yet Another Renderer", c_w, c_h, 0, &window, &renderer)) {
-            SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
-            return false;
-        }
-
-        return true;
     }
 
-    bool pollExit() {
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            switch (event.type) {
-                case SDL_EVENT_QUIT:
-                    return false;
+    void process() {
+        for (int x = -canvas.width/2 + 1; x < canvas.width/2; x++) {
+            for (int y = -canvas.height/2 + 1; y < canvas.height/2; y++) {
+                Point3D point_D = canvasPixelToViewportPoint(x, y);
+                Color color = traceRay(camera, point_D, 1, numeric_limits<double>::infinity());
+                canvas.putPixel(x,y,color);
             }
         }
-        return true;
     }
 
-    void render() {
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE); // Background
-        SDL_RenderClear(renderer);
-        for (int i = 0; i < c_h * c_w; i++) {
-            SDL_SetRenderDrawColor(renderer, pixels[i].r, pixels[i].g, pixels[i].b, SDL_ALPHA_OPAQUE);
-            int x = i % c_w;
-            int y = floor(i / c_w);
-            SDL_RenderPoint(renderer, x, y);
+    Color traceRay(Point3D camera, Point3D direction, double t_min, double t_max) {
+        double closest_t = numeric_limits<double>::infinity();
+        const Sphere* closest_sphere = nullptr;
+
+        for (int i = 0; i < spheres.size(); i++) {
+            double t1, t2;
+            tie(t1, t2) = intersect_ray_sphere(camera, direction, spheres[i]);
+            if (t1 > t_min && t1 < t_max) {
+                if (t1 < closest_t) {
+                    closest_t = t1;
+                    closest_sphere = &spheres[i];
+                }
+            }
+            if (t2 > t_min && t2 < t_max) {
+                if (t2 < closest_t) {
+                    closest_t = t2;
+                    closest_sphere = &spheres[i];
+                }
+            }
         }
-        SDL_RenderPresent(renderer);
+
+        if (closest_sphere == nullptr) {
+            return background_color;
+        }
+
+        return closest_sphere->color;
+
     }
 
-    void destroy() {
-        free(pixels);
-        SDL_DestroyRenderer(renderer);
-        SDL_DestroyWindow(window);
-        SDL_Quit();
+    tuple<double, double> intersect_ray_sphere(Point3D camera, Point3D direction, Sphere& sphere) {
+        double r = sphere.radius;
+        Point3D c_o = camera - sphere.center;
+
+        double a = direction * direction;
+        double b = 2 * (c_o * direction);
+        double c = c_o * c_o - pow(r,2);
+
+        double discriminant = b * b - 4 * a * c;
+        if (discriminant < 0) {
+            return make_tuple(numeric_limits<double>::infinity(), numeric_limits<double>::infinity());
+        }
+
+        double t1 = (-b + sqrt(discriminant)) / (2 * a);
+        double t2 = (-b - sqrt(discriminant)) / (2 * a);
+        return make_tuple(t1, t2);
     }
 
-    void putPixel(int x, int y, Color c) {
-        int real_x = x + c_w / 2;
-        int real_y = - y + c_h / 2;
-        pixels[real_y * c_w + real_x] = c;
+    /*
+    * Auxiliary functions
+    */
+
+    /*
+     * Converts a pixel in the canvas to it's position in the viewport.
+     */
+    Point3D canvasPixelToViewportPoint(int x, int y) {
+        float v_x = x * (viewport.width / canvas.width);
+        float v_y = y * (viewport.height / canvas.height);
+        float v_z = viewport.distance;
+
+        return Point3D(v_x, v_y, v_z);
     }
 };

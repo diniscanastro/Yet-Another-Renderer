@@ -19,6 +19,12 @@ add_executable(Yet_Another_Renderer main.cpp
         include/color.h
         src/point.cpp
         include/point.h
+        src/canvas.cpp
+        include/canvas.h
+        src/viewport.cpp
+        include/viewport.h
+        src/sphere.cpp
+        include/sphere.h
 )
 
 # SDL
