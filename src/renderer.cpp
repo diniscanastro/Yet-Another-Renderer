@@ -41,8 +41,8 @@ public:
     }
 
     void process() {
-        for (int x = -canvas.width/2 + 1; x < canvas.width/2; x++) {
-            for (int y = -canvas.height/2 + 1; y < canvas.height/2; y++) {
+        for (int x = -canvas.width/2; x < canvas.width/2; x++) {
+            for (int y = -canvas.height/2 + 1; y <= canvas.height/2; y++) {
                 Point3D point_D = canvasPixelToViewportPoint(x, y);
                 Color color = traceRay(camera, point_D, 1, numeric_limits<double>::infinity());
                 canvas.putPixel(x,y,color);
