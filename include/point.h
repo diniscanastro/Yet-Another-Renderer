@@ -32,6 +32,11 @@ public:
     Point2D operator-(Point2D obj) const;
 
     /*
+    * Inverts point/vector
+    */
+    Point2D operator-() const;
+
+    /*
     * Divides a point/vector with a scalar
     */
     Point2D operator/(const double k) const;
@@ -85,6 +90,11 @@ public:
     * Subtracts 2 points/vectors
     */
     Point3D operator-(const Point3D obj) const;
+
+    /*
+    * Inverts point/vector
+    */
+    Point3D operator-() const;
 
     /*
     * Multiplies a point/vector with a scalar

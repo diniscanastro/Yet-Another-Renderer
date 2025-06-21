@@ -32,10 +32,10 @@ public:
     ~Renderer() {canvas.destroy();}
 
     void setSceneElements() {
-        spheres.push_back(Sphere(Point3D(0, -1, 3),1, Color(255,0,0)));
-        spheres.push_back(Sphere(Point3D(2, 0, 4),1, Color(0,0,255)));
-        spheres.push_back(Sphere(Point3D(-2, 0, 4),1, Color(0,255,0)));
-        spheres.push_back(Sphere(Point3D(0, -5001, 0),5000, Color(255,255,0)));
+        spheres.push_back(Sphere(Point3D(0, -1, 3),1, Color(255,0,0), 500));
+        spheres.push_back(Sphere(Point3D(2, 0, 4),1, Color(0,0,255), 500));
+        spheres.push_back(Sphere(Point3D(-2, 0, 4),1, Color(0,255,0), 10));
+        spheres.push_back(Sphere(Point3D(0, -5001, 0),5000, Color(255,255,0), 1000));
 
 
         lights.push_back(make_unique<AmbientLight>(0.2));
@@ -88,7 +88,7 @@ public:
 
         Point3D intersection = camera + (direction * closest_t);
         Point3D normal = (intersection - closest_sphere->center).normalize();
-        return closest_sphere->color * computeLightIntensity(intersection, normal);
+        return closest_sphere->color * computeLightIntensity(intersection, normal, -direction, closest_sphere->specular);
 
     }
 
@@ -110,10 +110,10 @@ public:
         return make_tuple(t1, t2);
     }
 
-    double computeLightIntensity(const Point3D &point, const Point3D &normal) {
+    double computeLightIntensity(const Point3D &point, const Point3D &normal, const Point3D &view, const int specularity) {
         double intensity = 0.0;
         for (int i = 0; i < lights.size(); i++) {
-            intensity += lights[i]->calculateIntensityAtPoint(point, normal);
+            intensity += lights[i]->calculateIntensityAtPoint(point, normal, view, specularity);
         }
         return intensity;
     }

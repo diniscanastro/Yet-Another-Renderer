@@ -28,6 +28,14 @@ Point2D Point2D::operator-(Point2D obj) const {
 	return res;
 }
 
+Point2D Point2D::operator-() const {
+	Point2D res;
+	res.x = -x;
+	res.y = -y;
+
+	return res;
+}
+
 Point2D Point2D::operator/(const double k) const {
 	return *this * (1/k);
 }
@@ -83,6 +91,15 @@ Point3D Point3D::operator-(const Point3D obj) const {
 	res.x = x - obj.x;
 	res.y = y - obj.y;
 	res.z = z - obj.z;
+
+	return res;
+}
+
+Point3D Point3D::operator-() const {
+	Point3D res;
+	res.x = -x;
+	res.y = -y;
+	res.z = -z;
 
 	return res;
 }
