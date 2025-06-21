@@ -1,16 +1,17 @@
-//
-// Created by dinis on 17.06.2025.
-//
-
 #ifndef SPHERE_H
 #define SPHERE_H
 
+#include "point.h"
+#include "color.h"
 
 
-class sphere {
+class Sphere {
+public:
+    Point3D center;
+    double radius;
+    Color color;
 
+    Sphere(const Point3D &center, double radius, Color color);
 };
-
-
 
 #endif //SPHERE_H

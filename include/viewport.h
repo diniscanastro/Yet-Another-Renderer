@@ -1,16 +1,12 @@
-//
-// Created by dinis on 16.06.2025.
-//
-
 #ifndef VIEWPORT_H
 #define VIEWPORT_H
 
 
+class Viewport {
+public:
+    double width, height, distance;
 
-class viewport {
-
+    Viewport(double w, double h, double d);
 };
-
-
 
 #endif //VIEWPORT_H

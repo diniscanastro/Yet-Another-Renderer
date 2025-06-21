@@ -1,7 +1,3 @@
-//
-// Created by dinis on 14.06.2025.
-//
-
 #include "../include/color.h"
 
 Color::Color() : r(0), g(0), b(0) {}

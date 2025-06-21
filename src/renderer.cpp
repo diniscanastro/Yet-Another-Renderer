@@ -1,12 +1,16 @@
+#include "../include/renderer.h"
+
 #include <cmath>
 #include <vector>
 #include <tuple>
-#include "../include/renderer.h"
+#include <memory>
+
 #include "../include/point.h"
 #include "../include/color.h"
-#include "viewport.cpp"
-#include "canvas.cpp"
-#include "sphere.cpp"
+#include "../include/sphere.h"
+#include "../include/viewport.h"
+#include "../include/canvas.h"
+#include "../include/light.h"
 
 using namespace std;
 
@@ -18,22 +22,29 @@ public:
     Point3D camera;
     Color background_color;
 
+    // Scene elements
     vector<Sphere> spheres;
+    vector<unique_ptr<Light>> lights;
 
     Renderer(): canvas(800, 800), viewport(1.0, 1.0, 1.0), camera(Point3D(0, 0, 0)), background_color(Color(255,255,255)) {
-        canvas.initWindow();
-        set_scene_objects();
+        setSceneElements();
     }
     ~Renderer() {canvas.destroy();}
 
-    void set_scene_objects() {
+    void setSceneElements() {
         spheres.push_back(Sphere(Point3D(0, -1, 3),1, Color(255,0,0)));
         spheres.push_back(Sphere(Point3D(2, 0, 4),1, Color(0,0,255)));
         spheres.push_back(Sphere(Point3D(-2, 0, 4),1, Color(0,255,0)));
+        spheres.push_back(Sphere(Point3D(0, -5001, 0),5000, Color(255,255,0)));
+
+
+        lights.push_back(make_unique<AmbientLight>(0.2));
+        lights.push_back(make_unique<PointLight>(0.6, Point3D(2, 1, 0)));
+        lights.push_back(make_unique<DirectionalLight>(0.2, Point3D(1, 4, 4)));
 
     }
 
-    void engage_loop() {
+    void engageLoop() {
         while (canvas.pollExit()) {
             process();
             canvas.render();
@@ -50,13 +61,13 @@ public:
         }
     }
 
-    Color traceRay(Point3D camera, Point3D direction, double t_min, double t_max) {
+    Color traceRay(const Point3D &camera, const Point3D &direction, const double t_min, const double t_max) {
         double closest_t = numeric_limits<double>::infinity();
         const Sphere* closest_sphere = nullptr;
 
         for (int i = 0; i < spheres.size(); i++) {
             double t1, t2;
-            tie(t1, t2) = intersect_ray_sphere(camera, direction, spheres[i]);
+            tie(t1, t2) = intersectRaySphere(camera, direction, spheres[i]);
             if (t1 > t_min && t1 < t_max) {
                 if (t1 < closest_t) {
                     closest_t = t1;
@@ -75,11 +86,13 @@ public:
             return background_color;
         }
 
-        return closest_sphere->color;
+        Point3D intersection = camera + (direction * closest_t);
+        Point3D normal = (intersection - closest_sphere->center).normalize();
+        return closest_sphere->color * computeLightIntensity(intersection, normal);
 
     }
 
-    tuple<double, double> intersect_ray_sphere(Point3D camera, Point3D direction, Sphere& sphere) {
+    tuple<double, double> intersectRaySphere(const Point3D &camera, const Point3D &direction, const Sphere& sphere) {
         double r = sphere.radius;
         Point3D c_o = camera - sphere.center;
 
@@ -97,6 +110,14 @@ public:
         return make_tuple(t1, t2);
     }
 
+    double computeLightIntensity(const Point3D &point, const Point3D &normal) {
+        double intensity = 0.0;
+        for (int i = 0; i < lights.size(); i++) {
+            intensity += lights[i]->calculateIntensityAtPoint(point, normal);
+        }
+        return intensity;
+    }
+
     /*
     * Auxiliary functions
     */
@@ -104,7 +125,7 @@ public:
     /*
      * Converts a pixel in the canvas to it's position in the viewport.
      */
-    Point3D canvasPixelToViewportPoint(int x, int y) {
+    Point3D canvasPixelToViewportPoint(const int x, const int y) {
         float v_x = x * (viewport.width / canvas.width);
         float v_y = y * (viewport.height / canvas.height);
         float v_z = viewport.distance;

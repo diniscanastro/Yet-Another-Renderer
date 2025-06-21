@@ -3,6 +3,6 @@
 
 int main(int argc, char* argv[]) {
     Renderer renderer;
-    renderer.engage_loop();
+    renderer.engageLoop();
     return 0;
 }
