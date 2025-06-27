@@ -1,9 +1,10 @@
 #include "../include/renderer.h"
 
 #include <cmath>
-#include <vector>
+
 #include <tuple>
 #include <memory>
+#include <vector>
 
 #include "../include/point.h"
 #include "../include/color.h"
@@ -11,6 +12,7 @@
 #include "../include/viewport.h"
 #include "../include/canvas.h"
 #include "../include/light.h"
+#include "../include/world.h"
 
 using namespace std;
 
@@ -62,25 +64,10 @@ public:
     }
 
     Color traceRay(const Point3D &camera, const Point3D &direction, const double t_min, const double t_max) {
-        double closest_t = numeric_limits<double>::infinity();
-        const Sphere* closest_sphere = nullptr;
+        const Sphere* closest_sphere;
+        double closest_t;
 
-        for (int i = 0; i < spheres.size(); i++) {
-            double t1, t2;
-            tie(t1, t2) = intersectRaySphere(camera, direction, spheres[i]);
-            if (t1 > t_min && t1 < t_max) {
-                if (t1 < closest_t) {
-                    closest_t = t1;
-                    closest_sphere = &spheres[i];
-                }
-            }
-            if (t2 > t_min && t2 < t_max) {
-                if (t2 < closest_t) {
-                    closest_t = t2;
-                    closest_sphere = &spheres[i];
-                }
-            }
-        }
+        tie(closest_sphere, closest_t) = closestIntersection(spheres, camera, direction, t_min, t_max);
 
         if (closest_sphere == nullptr) {
             return background_color;
@@ -92,28 +79,10 @@ public:
 
     }
 
-    tuple<double, double> intersectRaySphere(const Point3D &camera, const Point3D &direction, const Sphere& sphere) {
-        double r = sphere.radius;
-        Point3D c_o = camera - sphere.center;
-
-        double a = direction * direction;
-        double b = 2 * (c_o * direction);
-        double c = c_o * c_o - pow(r,2);
-
-        double discriminant = b * b - 4 * a * c;
-        if (discriminant < 0) {
-            return make_tuple(numeric_limits<double>::infinity(), numeric_limits<double>::infinity());
-        }
-
-        double t1 = (-b + sqrt(discriminant)) / (2 * a);
-        double t2 = (-b - sqrt(discriminant)) / (2 * a);
-        return make_tuple(t1, t2);
-    }
-
     double computeLightIntensity(const Point3D &point, const Point3D &normal, const Point3D &view, const int specularity) {
         double intensity = 0.0;
         for (int i = 0; i < lights.size(); i++) {
-            intensity += lights[i]->calculateIntensityAtPoint(point, normal, view, specularity);
+            intensity += lights[i]->calculateIntensityAtPoint(spheres, point, normal, view, specularity);
         }
         return intensity;
     }

@@ -5,8 +5,10 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 
-#include "point.h"
+#include <vector>
 
+#include "point.h"
+#include "sphere.h"
 
 class Light {
 public:
@@ -15,14 +17,14 @@ public:
     Light(double intensity): intensity(intensity) {};
     virtual ~Light() = default;
 
-    virtual double calculateIntensityAtPoint(Point3D point, Point3D normal, Point3D view, int specularity) = 0;
+    virtual double calculateIntensityAtPoint(std::vector<Sphere>& spheres, Point3D point, Point3D normal, Point3D view, int specularity) = 0;
 };
 
 class AmbientLight : public Light {
 public:
     AmbientLight(double intensity);
 
-    double calculateIntensityAtPoint(Point3D point, Point3D normal, Point3D view, int specularity) override;
+    double calculateIntensityAtPoint(std::vector<Sphere>& spheres, Point3D point, Point3D normal, Point3D view, int specularity) override;
 };
 
 class PointLight : public Light {
@@ -31,7 +33,7 @@ public:
 
     PointLight(double intensity, const Point3D &position);
 
-    double calculateIntensityAtPoint(Point3D point, Point3D normal, Point3D view, int specularity) override;
+    double calculateIntensityAtPoint(std::vector<Sphere>& spheres, Point3D point, Point3D normal, Point3D view, int specularity) override;
 
 };
 
@@ -41,7 +43,7 @@ public:
 
     DirectionalLight(double intensity, const Point3D &direction);
 
-    double calculateIntensityAtPoint(Point3D point, Point3D normal, Point3D view, int specularity) override;
+    double calculateIntensityAtPoint(std::vector<Sphere>& spheres, Point3D point, Point3D normal, Point3D view, int specularity) override;
 
 };
 

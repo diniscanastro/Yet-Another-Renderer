@@ -21,6 +21,4 @@ public:
     void putPixel(int x, int y, Color color);
 };
 
-
-
 #endif //CANVAS_H

@@ -1,6 +1,8 @@
 #ifndef SPHERE_H
 #define SPHERE_H
 
+#include <tuple>
+
 #include "point.h"
 #include "color.h"
 
@@ -13,6 +15,8 @@ public:
     int specular;
 
     Sphere(const Point3D &center, double radius, Color color, int specular);
+
+    std::tuple<double, double> intersectRaySphere(const Point3D &camera, const Point3D &direction);
 };
 
 #endif //SPHERE_H

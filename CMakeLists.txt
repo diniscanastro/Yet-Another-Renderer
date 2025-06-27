@@ -27,6 +27,7 @@ add_executable(Yet_Another_Renderer main.cpp
         include/sphere.h
         src/light.cpp
         include/light.h
+        include/world.h
 )
 
 # SDL
