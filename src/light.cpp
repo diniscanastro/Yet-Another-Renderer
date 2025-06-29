@@ -24,7 +24,7 @@ double calculateIncidence(std::vector<Sphere>& spheres, const double intensity, 
 
     // Specular component
     if(specularity != -1) {
-        Point3D r = ((normal * 2) * (normal * light_direction)) - light_direction;
+        Point3D r = reflectRay(light_direction, normal);
         double r_dot_v = r * view;
         if (r_dot_v > 0.0) {
             i += intensity * pow(r_dot_v / (r.magnitude() * view.magnitude()), specularity);

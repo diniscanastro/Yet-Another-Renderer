@@ -34,8 +34,8 @@ inline std::tuple<const Sphere *, double> closestIntersection(std::vector<Sphere
     return std::make_tuple(closest_sphere, closest_t);
 }
 
-
-
-
+inline Point3D reflectRay(const Point3D &ray_direction, const Point3D &normal) {
+    return ((normal * 2) * (normal * ray_direction)) - ray_direction;
+}
 
 #endif //AUXILIARY_H

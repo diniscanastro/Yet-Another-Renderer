@@ -28,16 +28,16 @@ public:
     vector<Sphere> spheres;
     vector<unique_ptr<Light>> lights;
 
-    Renderer(): canvas(800, 800), viewport(1.0, 1.0, 1.0), camera(Point3D(0, 0, 0)), background_color(Color(255,255,255)) {
+    Renderer(): canvas(800, 800), viewport(1.0, 1.0, 1.0), camera(Point3D(0, 0, 0)), background_color(Color(0,0,0)) {
         setSceneElements();
     }
     ~Renderer() {canvas.destroy();}
 
     void setSceneElements() {
-        spheres.push_back(Sphere(Point3D(0, -1, 3),1, Color(255,0,0), 500));
-        spheres.push_back(Sphere(Point3D(2, 0, 4),1, Color(0,0,255), 500));
-        spheres.push_back(Sphere(Point3D(-2, 0, 4),1, Color(0,255,0), 10));
-        spheres.push_back(Sphere(Point3D(0, -5001, 0),5000, Color(255,255,0), 1000));
+        spheres.emplace_back(Point3D(0, -1, 3),1, Color(255,0,0), 500, 0.2);
+        spheres.emplace_back(Point3D(2, 0, 4),1, Color(0,0,255), 500, 0.3);
+        spheres.emplace_back(Point3D(-2, 0, 4),1, Color(0,255,0), 10, 0.4);
+        spheres.emplace_back(Point3D(0, -5001, 0),5000, Color(255,255,0), 1000, 0.5);
 
 
         lights.push_back(make_unique<AmbientLight>(0.2));
@@ -57,13 +57,13 @@ public:
         for (int x = -canvas.width/2; x < canvas.width/2; x++) {
             for (int y = -canvas.height/2 + 1; y <= canvas.height/2; y++) {
                 Point3D point_D = canvasPixelToViewportPoint(x, y);
-                Color color = traceRay(camera, point_D, 1, numeric_limits<double>::infinity());
+                Color color = traceRay(camera, point_D, 1, numeric_limits<double>::infinity(), 3);
                 canvas.putPixel(x,y,color);
             }
         }
     }
 
-    Color traceRay(const Point3D &camera, const Point3D &direction, const double t_min, const double t_max) {
+    Color traceRay(const Point3D &camera, const Point3D &direction, const double t_min, const double t_max, int recursion_depth) {
         const Sphere* closest_sphere;
         double closest_t;
 
@@ -75,8 +75,16 @@ public:
 
         Point3D intersection = camera + (direction * closest_t);
         Point3D normal = (intersection - closest_sphere->center).normalize();
-        return closest_sphere->color * computeLightIntensity(intersection, normal, -direction, closest_sphere->specular);
+        Color local_color = closest_sphere->color * computeLightIntensity(intersection, normal, -direction, closest_sphere->specular);
 
+        double r = closest_sphere->reflectivity;
+        if (recursion_depth <= 0 || r <= 0) {
+            return local_color;
+        }
+
+        Point3D ray_direction = reflectRay(-direction, normal);
+        Color reflected_color = traceRay(intersection, ray_direction, 0.001, t_max, recursion_depth - 1);
+        return local_color * (1.0 - r) + reflected_color * r;
     }
 
     double computeLightIntensity(const Point3D &point, const Point3D &normal, const Point3D &view, const int specularity) {

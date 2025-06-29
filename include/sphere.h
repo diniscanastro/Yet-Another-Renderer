@@ -13,8 +13,9 @@ public:
     double radius;
     Color color;
     int specular;
+    double reflectivity;
 
-    Sphere(const Point3D &center, double radius, Color color, int specular);
+    Sphere(const Point3D &center, double radius, Color color, int specular, double reflectivity);
 
     std::tuple<double, double> intersectRaySphere(const Point3D &camera, const Point3D &direction);
 };
