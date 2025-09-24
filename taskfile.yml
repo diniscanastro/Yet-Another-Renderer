@@ -1,0 +1,11 @@
+version: '3'
+
+tasks:
+  build:
+    cmds:
+      - cmake -S . -B build
+      - cmake --build build
+
+  run:
+    cmds:
+      - ./build/Yet_Another_Renderer

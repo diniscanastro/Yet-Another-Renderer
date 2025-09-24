@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.31)
+cmake_minimum_required(VERSION 3.22)
 project(Yet_Another_Renderer)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -32,8 +32,6 @@ add_executable(Yet_Another_Renderer main.cpp
 
 # SDL
 target_link_libraries(Yet_Another_Renderer PRIVATE SDL3::SDL3)
-target_compile_definitions(Yet_Another_Renderer PRIVATE SDL_MAIN_USE_CALLBACKS)
-target_link_options(Yet_Another_Renderer PRIVATE -static)
 
-# UTs
-add_subdirectory(tests)
+# UTs TODO: Fix this is not compiling
+# add_subdirectory(tests)

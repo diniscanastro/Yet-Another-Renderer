@@ -42,3 +42,7 @@
 
 # Clion folder
 .idea/
+
+# Build files
+/build/
+/_deps/
