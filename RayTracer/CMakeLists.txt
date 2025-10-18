@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-project(Yet_Another_Renderer)
+project(Yet_Another_Renderer_RayTracer)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -12,7 +12,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(SDL3)
 
-add_executable(Yet_Another_Renderer main.cpp
+add_executable(Yet_Another_Renderer_RayTracer main.cpp
         src/renderer.cpp
         include/renderer.h
         src/color.cpp
@@ -31,7 +31,7 @@ add_executable(Yet_Another_Renderer main.cpp
 )
 
 # SDL
-target_link_libraries(Yet_Another_Renderer PRIVATE SDL3::SDL3)
+target_link_libraries(Yet_Another_Renderer_RayTracer PRIVATE SDL3::SDL3)
 
 # UTs TODO: Fix this is not compiling
 # add_subdirectory(tests)

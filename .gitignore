@@ -41,8 +41,8 @@
 *.app
 
 # Clion folder
-.idea/
+*/.idea/
 
 # Build files
-/build/
-/_deps/
+*/build/
+*/_deps/
